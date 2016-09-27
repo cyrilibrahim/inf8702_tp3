@@ -160,7 +160,75 @@ void CQuadrique::Pretraitement( void )
 CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
+	CVecteur3 dir = Rayon.ObtenirDirection();
+	CVecteur3 orig = Rayon.ObtenirOrigine();
 
+	REAL Aq = m_Quadratique.x * dir.x * dir.x
+		+ m_Mixte.z * dir.x * dir.y
+		+ m_Mixte.y * dir.x * dir.z
+		+ m_Quadratique.y * dir.y * dir.y
+		+ m_Mixte.x * dir.y * dir.z
+		+ m_Quadratique.z * dir.z * dir.z;
+
+	REAL Bq = 2 * m_Quadratique.x * dir.x * orig.x
+		+ m_Mixte.z*(orig.x*dir.y + orig.y*dir.x)
+		+ m_Mixte.y*(orig.x*dir.z + orig.z*dir.x)
+		+ m_Lineaire.x*dir.x
+		+ 2 * m_Quadratique.y*dir.y*orig.y
+		+ m_Mixte.x*(dir.z*orig.y + dir.y*orig.z)
+		+ m_Lineaire.y*dir.y
+		+ 2 * m_Quadratique.z*dir.z*orig.z
+		+ m_Lineaire.z*dir.z;
+
+	REAL Cq = m_Quadratique.x*orig.x*orig.x
+		+ m_Mixte.z*orig.x*orig.y
+		+ m_Mixte.y*orig.x*orig.z
+		+ m_Lineaire.x*orig.x
+		+ m_Quadratique.y*orig.y*orig.y
+		+ m_Mixte.x*orig.y*orig.z
+		+ m_Lineaire.y*orig.y
+		+ m_Quadratique.z*orig.z*orig.z
+		+ m_Lineaire.z*orig.z
+		+ m_Cst;
+
+	// safe value: t=0 corresponds to the origin, no interesction
+	REAL t = 0;
+	if (Aq == 0 && Bq != 0)
+		t = -Cq / Bq;
+	else {
+		REAL delta = Bq*Bq - 4 * Aq*Cq;
+		if (delta >= 0) {
+			REAL t0 = (-Bq - sqrt(delta)) / (2 * Aq);
+			REAL t1 = (-Bq + sqrt(delta)) / (2 * Aq);
+			REAL d0 = CVecteur3::Norme(dir*t0);
+			REAL d1 = CVecteur3::Norme(dir*t1);
+			t = d0 < d1 ? t0 : t1;
+		}
+	}
+
+	if (t != 0) {
+		Result.AjusterSurface(this);
+		Result.AjusterDistance(CVecteur3::Norme(dir*t));
+
+		REAL x = orig.x + dir.x * t;
+		REAL y = orig.y + dir.y * t;
+		REAL z = orig.z + dir.z * t;
+
+		REAL xn = 2 * m_Quadratique.x*x
+			+ m_Mixte.z * y
+			+ m_Mixte.y * z
+			+ m_Lineaire.x;
+		REAL yn = m_Mixte.z * x
+			+ 2 * m_Quadratique.y*y
+			+ m_Mixte.x*z
+			+ m_Lineaire.y;
+		REAL zn = m_Mixte.y *x
+			+ m_Mixte.x*y
+			+ 2 * m_Quadratique.z*z
+			+ m_Lineaire.z;
+
+		Result.AjusterNormale(CVecteur3::Normaliser(CVecteur3(xn, yn, zn)));
+	}
 	// TODO: À COMPLÉTER ...
 
 	// La référence pour l'algorithme d'intersection des quadriques est : 
