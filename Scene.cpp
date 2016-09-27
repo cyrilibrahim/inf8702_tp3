@@ -626,8 +626,6 @@ void CScene::LancerRayons(void)
 {
 	Initialiser();
 
-	// À COMPLÉTER ...
-
 	//POUR chaque position Py de pixel de la grille virtuelle
 	for (int y = 0; y < m_ResHauteur; y++)
 	{
@@ -646,30 +644,52 @@ void CScene::LancerRayons(void)
 
 			REAL demiAngleCamera = m_Camera.Angle / 2;
 			REAL demiHauteur = tan(demiAngleCamera) * distanceCamera;
-			REAL pasPixelVirtuel = demiHauteur / (m_ResHauteur / 2);
+			REAL pasPixelVirtuelHauteur = (demiHauteur * 2) / m_ResHauteur;
+			REAL pasPixelVirtuelLargeur = (demiHauteur * 2) / m_ResLargeur;
+
 
 			//Calcul des coordonnées sur la grille virtuelle
-			REAL Py_grille = pixelYCentre * pasPixelVirtuel;
-			REAL Px_grille = pixelXCentre * pasPixelVirtuel;
+			REAL Py_grille = pixelYCentre * pasPixelVirtuelHauteur;
+			REAL Px_grille = pixelXCentre * pasPixelVirtuelLargeur;
 
-			CVecteur3 pointGrille = CVecteur3(Px_grille, Py_grille, distanceCamera);
+			CVecteur3 pointGrille = CVecteur3(Px_grille, Py_grille, -distanceCamera);
 
 			//          Calculer la direction du rayon vers la coordonnée réelle
 			//          du pixel ( Px,Py )
-			//          
+			
+			CVecteur3 directionRayon = pointGrille;
+
 			//          Ajuster l'orientation du rayon ( utiliser la matrice
 			//          Orientation de la camera qui est déjà calculé pour vous ) et le normaliser
+			directionRayon = directionRayon * m_Camera.Orientation;
+			directionRayon = CVecteur3::Normaliser(directionRayon);
+
+			CRayon rayon = CRayon();
+
+			rayon.AjusterOrigine(m_Camera.Position);
+			rayon.AjusterDirection(directionRayon);
+		
+
 			//
 			//          Initialiser les autres caractéristiques du rayon à :
 			//              - Energie            = 1
 			//              - NbRebonds          = 0
 			//              - IndiceDeRefraction = 1
 			//
+
+			rayon.AjusterEnergie(1);
+			rayon.AjusterNbRebonds(0);
+			rayon.AjusterIndiceRefraction(1);
+
 			//          Lancer le rayon pour obtenir la couleur du pixel avec la fonction
 			//          CScene::ObtenirCouleur()
-			//          
+			CCouleur couleurObtenue = CScene::ObtenirCouleur(rayon);
 			//          Enregistrer les composantes R, G et B de la couleur du pixel dans la
 			//          structure linéaire m_PixelInfo de taille ResolutionX * ResolutionY * 3
+
+			m_InfoPixel[3 * (y * m_ResLargeur + x)] = couleurObtenue.r;
+			m_InfoPixel[3 * (y * m_ResLargeur + x) + 1] = couleurObtenue.g;
+			m_InfoPixel[3 * (y * m_ResLargeur + x) + 2] = couleurObtenue.b;
 		}
 	}
 
