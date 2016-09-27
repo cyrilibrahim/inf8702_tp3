@@ -622,36 +622,56 @@ void CScene::InitialiserCamera( void )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-void CScene::LancerRayons( void )
+void CScene::LancerRayons(void)
 {
 	Initialiser();
 
 	// À COMPLÉTER ...
 
-	// POUR chaque position Py de pixel de la grille virtuelle
-	// {
-	//      POUR chaque position Px de pixel de la grille virtuelle
-	//      {
-	//          Ajuster l’origine du rayon au centre de la caméra
-	//          
-	//          Calculer la direction du rayon vers la coordonnée réelle
-	//          du pixel ( Px,Py )
-	//          
-	//          Ajuster l'orientation du rayon ( utiliser la matrice
-	//          Orientation de la camera qui est déjà calculé pour vous ) et le normaliser
-	//
-	//          Initialiser les autres caractéristiques du rayon à :
-	//              - Energie            = 1
-	//              - NbRebonds          = 0
-	//              - IndiceDeRefraction = 1
-	//
-	//          Lancer le rayon pour obtenir la couleur du pixel avec la fonction
-	//          CScene::ObtenirCouleur()
-	//          
-	//          Enregistrer les composantes R, G et B de la couleur du pixel dans la
-	//          structure linéaire m_PixelInfo de taille ResolutionX * ResolutionY * 3
-	//      }
-	//  }
+	//POUR chaque position Py de pixel de la grille virtuelle
+	for (int y = 0; y < m_ResHauteur; y++)
+	{
+
+		//      POUR chaque position Px de pixel de la grille virtuelle
+		for (int x = 0; x < m_ResLargeur; x++)
+		{
+			//Ajuster l’origine du rayon au centre de la caméra
+			REAL pixelYCentre = y - (m_ResHauteur / 2);
+			REAL pixelXCentre = x - (m_ResLargeur / 2);
+
+			//Choix arbirtaire d'une distance de la grille par rapport a la camera
+			REAL distanceCamera = 1.0f;
+
+			//Calcul de la longueur d'un pixel dans notre grille virtuelle 
+
+			REAL demiAngleCamera = m_Camera.Angle / 2;
+			REAL demiHauteur = tan(demiAngleCamera) * distanceCamera;
+			REAL pasPixelVirtuel = demiHauteur / (m_ResHauteur / 2);
+
+			//Calcul des coordonnées sur la grille virtuelle
+			REAL Py_grille = pixelYCentre * pasPixelVirtuel;
+			REAL Px_grille = pixelXCentre * pasPixelVirtuel;
+
+			CVecteur3 pointGrille = CVecteur3(Px_grille, Py_grille, distanceCamera);
+
+			//          Calculer la direction du rayon vers la coordonnée réelle
+			//          du pixel ( Px,Py )
+			//          
+			//          Ajuster l'orientation du rayon ( utiliser la matrice
+			//          Orientation de la camera qui est déjà calculé pour vous ) et le normaliser
+			//
+			//          Initialiser les autres caractéristiques du rayon à :
+			//              - Energie            = 1
+			//              - NbRebonds          = 0
+			//              - IndiceDeRefraction = 1
+			//
+			//          Lancer le rayon pour obtenir la couleur du pixel avec la fonction
+			//          CScene::ObtenirCouleur()
+			//          
+			//          Enregistrer les composantes R, G et B de la couleur du pixel dans la
+			//          structure linéaire m_PixelInfo de taille ResolutionX * ResolutionY * 3
+		}
+	}
 
 	// Créer une texture openGL
 	glGenTextures(1, &m_TextureScene);
