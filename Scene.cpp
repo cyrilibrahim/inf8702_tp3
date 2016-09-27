@@ -664,6 +664,8 @@ void CScene::LancerRayons(void)
 			directionRayon = directionRayon * m_Camera.Orientation;
 			directionRayon = CVecteur3::Normaliser(directionRayon);
 
+
+			//Creation et parametrage du rayon 
 			CRayon rayon = CRayon();
 
 			rayon.AjusterOrigine(m_Camera.Position);

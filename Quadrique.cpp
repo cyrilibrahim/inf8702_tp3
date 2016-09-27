@@ -161,7 +161,40 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
 
+	CVecteur3 directionRayon = Rayon.ObtenirDirection;
+	CVecteur3 originRayon = Rayon.ObtenirOrigine;
+
 	// TODO: À COMPLÉTER ...
+	REAL Aq = pow(directionRayon.x, 2) * m_Quadratique.x
+		    + m_Mixte.z * directionRayon.x * directionRayon.y 
+			+ m_Mixte.y * directionRayon.x * directionRayon.z
+			+ pow(directionRayon.y, 2) * m_Quadratique.y
+			+ m_Mixte.x * directionRayon.y * directionRayon.z
+			+ pow(directionRayon.z, 2) * m_Quadratique.z;
+
+
+	REAL Bq = 2 * (originRayon.x * directionRayon.x * m_Quadratique.x
+		+ m_Mixte.z * (originRayon.x * directionRayon.y + directionRayon.x * originRayon.y)
+		+ m_Mixte.y * (originRayon.x * directionRayon.z + directionRayon.x * originRayon.z)
+		+ m_Lineaire.x * directionRayon.x
+		+ m_Quadratique.y * originRayon.y * directionRayon.y,
+		+ m_Mixte.x * ( originRayon.y * directionRayon.z + directionRayon.y * originRayon.z)
+		+ m_Lineaire.y * directionRayon.y
+		+ m_Quadratique.z * originRayon.z * directionRayon.z
+		+ m_Lineaire.z * directionRayon.z
+		);
+
+	REAL Cq = m_Quadratique.x * pow(originRayon.x, 2)
+			+ m_Mixte.z * originRayon.x * originRayon.y
+			+ m_Mixte.y * originRayon.x * originRayon.z
+			+ m_Lineaire.x * originRayon.x
+			+ m_Quadratique.y * pow(originRayon.y,2)
+			+ m_Mixte.x * originRayon.y * originRayon.z
+			+ m_Lineaire.y * originRayon.y
+			+ m_Quadratique.z * pow(originRayon.z,2)
+			+ m_Lineaire.z * originRayon.z
+			+ m_Cst;
+
 
 	// La référence pour l'algorithme d'intersection des quadriques est : 
 	// Eric Haines, Paul Heckbert "An Introduction to Rayon Tracing",
