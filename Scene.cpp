@@ -626,6 +626,27 @@ void CScene::LancerRayons( void )
 {
 	Initialiser();
 
+	float taille_grille = 2*tan(m_Camera.Angle/2.0);
+
+	for (int y = 0; y < m_ResHauteur; y++) {
+		for (int x = 0; x < m_ResLargeur; x++) {
+			float Py = (y / (float)m_ResHauteur - 0.5) * taille_grille;
+			float Px = (x / (float)m_ResLargeur - 0.5) * taille_grille;
+
+			CRayon rayon;
+			rayon.AjusterOrigine(m_Camera.Position);
+			CVecteur3 dir_cs(Px, Py, -1.0);
+			rayon.AjusterDirection(CVecteur3::Normaliser(dir_cs*m_Camera.Orientation));
+			rayon.AjusterEnergie(1);
+			rayon.AjusterNbRebonds(0);
+			rayon.AjusterIndiceRefraction(1);
+			
+			CCouleur couleur = ObtenirCouleur(rayon);
+			m_InfoPixel[3 * (y*m_ResLargeur + x)] = couleur.r;
+			m_InfoPixel[3 * (y*m_ResLargeur + x) + 1] = couleur.g;
+			m_InfoPixel[3 * (y*m_ResLargeur + x) + 2] = couleur.b;
+		}
+	}
 	// À COMPLÉTER ...
 
 	// POUR chaque position Py de pixel de la grille virtuelle
