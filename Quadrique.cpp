@@ -195,6 +195,25 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 			+ m_Lineaire.z * originRayon.z
 			+ m_Cst;
 
+	REAL t = 0;
+
+	REAL determinant = pow(Bq, 2) - 4 * Aq * Cq;
+
+	if (Aq != 0) {
+		t = -Cq / Bq;
+		if (determinant < 0) {
+			return Result;
+		}
+		else {
+			REAL t0 = (-Bq - sqrt(determinant)) / 2 * Aq;
+			REAL t1 = (-Bq + sqrt(determinant)) / 2 * Aq;
+
+			REAL distanceT0 = CVecteur3::Norme(t0 * directionRayon);
+			REAL distanceT1 = CVecteur3::Norme(t1 * directionRayon);
+
+			t = (t0 < t1) ? t0 : t1;
+		}
+	}
 
 	// La référence pour l'algorithme d'intersection des quadriques est : 
 	// Eric Haines, Paul Heckbert "An Introduction to Rayon Tracing",
