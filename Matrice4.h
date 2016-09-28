@@ -3,6 +3,7 @@
 
 #include "MathUtils.h"
 #include "Vecteur3.h"
+#include <cstring>
 
 using namespace std;
 

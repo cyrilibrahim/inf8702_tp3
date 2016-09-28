@@ -208,21 +208,22 @@ void Initialiser( void )
     CVar::g_GestionnaireDeScene->LancerRayons();
 
     // Calculer le temps pris
+    double duration;
 #if _WIN32
 	QueryPerformanceCounter( &lTime );
 	QueryPerformanceFrequency( &lFrequency );
-	Time = static_cast<double>( lTime.QuadPart ) / static_cast<double>( lFrequency.QuadPart ) - Time;
+	duration = static_cast<double>( lTime.QuadPart ) / static_cast<double>( lFrequency.QuadPart ) - Time;
 #else
 	timeval CurrentTime;
 	gettimeofday( &CurrentTime, 0 );
 
 	const double T1 = static_cast<double>( Time.tv_sec ) + static_cast<double>( Time.tv_usec / ( 1000 * 1000 ) );
 	const double T2 = static_cast<double>( CurrentTime.tv_sec ) + static_cast<double>( CurrentTime.tv_usec / ( 1000 * 1000 ) );
+	duration = T2-T1;
 
-	Time = T2 - T1;
 #endif
+	cout << "[ETAT]: Termine! --> Temps total de rendu : " << duration << " secondes" << endl;
 
-   cout << "[ETAT]: Termine! --> Temps total de rendu : " << Time << " secondes" << endl;
 }
 
 void Redimensionner(GLFWwindow* fenetre, int w, int h)

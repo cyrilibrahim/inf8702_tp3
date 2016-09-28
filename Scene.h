@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <GL/glew.h>
-#include "Math.h"
+//#include "Math.h"
 #include "Vecteur3.h"
 #include "Matrice4.h"
 #include "Singleton.h"
