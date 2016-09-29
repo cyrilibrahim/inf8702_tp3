@@ -128,32 +128,26 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
 
+	//Arêtes du triangle
 	CVecteur3 e1 = m_Pts[1]-m_Pts[0];
 	CVecteur3 e2 = m_Pts[2]-m_Pts[0];
+	//Expressions réutilisées pour calculer la solution
 	CVecteur3 T = Rayon.ObtenirOrigine() - m_Pts[0];
-
 	CVecteur3 P = CVecteur3::ProdVect(Rayon.ObtenirDirection(),e2);
 	CVecteur3 Q = CVecteur3::ProdVect(T,e1);
 
+	//[t,u,v] : paramètres au point d'intersection
 	CVecteur3 tuv = (1/CVecteur3::ProdScal(P,e1))*CVecteur3(
 			CVecteur3::ProdScal(Q,e2),
 			CVecteur3::ProdScal(P,T),
 			CVecteur3::ProdScal(Q,Rayon.ObtenirDirection()));
 
+	//Le point est à l'intérieur du triangle si u>=0, v>=0, u+v<=1
 	if (tuv.y>=0 && tuv.z>=0 && tuv.y+tuv.z<=1) {
 		Result.AjusterSurface(this);
 		Result.AjusterDistance(CVecteur3::Norme(Rayon.ObtenirDirection()*tuv.x));
 		Result.AjusterNormale(m_Normale);
 	}
-
-	// À COMPLÉTER ... 
-
-	// Voici deux références pour acomplir le développement :
-	// 1) Tomas Akenine-Moller and Eric Haines "Real-Time Rendering 2nd Ed." 2002, p.581
-	// 2) Son article: http://www.graphics.cornell.edu/pubs/1997/MT97.pdf
-
-	// Notez que la normale du triangle est déjà calculée lors du prétraitement
-	// il suffit que de la passer à la structure d'intersection.
 
     return Result;
 }
