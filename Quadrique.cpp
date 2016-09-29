@@ -163,6 +163,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 	CVecteur3 dir = Rayon.ObtenirDirection();
 	CVecteur3 orig = Rayon.ObtenirOrigine();
 
+	//On calcule les coefficients de l'équation quadratique Aq.t²+Bq.t+Cq=0 obtenue en introduisant l'expression paramétrique de la droite dans l'équation de la quadrique
 	REAL Aq = m_Quadratique.x * dir.x * dir.x
 		+ m_Mixte.z * dir.x * dir.y
 		+ m_Mixte.y * dir.x * dir.z
@@ -191,29 +192,34 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 		+ m_Lineaire.z*orig.z
 		+ m_Cst;
 
-	// safe value: t=0 corresponds to the origin, no interesction
+	// valeur par défaut: t=0 correspond à l'origine de la droite, pas d'intersection possible
 	REAL t = 0;
 	if (Aq == 0 && Bq != 0)
+		//Une solution unique
 		t = -Cq / Bq;
 	else {
+		//Déterminant
 		REAL delta = Bq*Bq - 4 * Aq*Cq;
 		if (delta >= 0) {
+			//Deux solutions (éventuellement égales)
 			REAL t0 = (-Bq - sqrt(delta)) / (2 * Aq);
 			REAL t1 = (-Bq + sqrt(delta)) / (2 * Aq);
-			REAL d0 = CVecteur3::Norme(dir*t0);
-			REAL d1 = CVecteur3::Norme(dir*t1);
-			t = d0 < d1 ? t0 : t1;
+			//On choisit le point le plus proche de la caméra
+			t = t0 < t1 ? t0 : t1;
 		}
 	}
 
+	// En cas d'intersection
 	if (t != 0) {
 		Result.AjusterSurface(this);
 		Result.AjusterDistance(CVecteur3::Norme(dir*t));
 
+		//Coordonnées du point d'intersection
 		REAL x = orig.x + dir.x * t;
 		REAL y = orig.y + dir.y * t;
 		REAL z = orig.z + dir.z * t;
 
+		//Normale à la quadrique au point d'intersection
 		REAL xn = 2 * m_Quadratique.x*x
 			+ m_Mixte.z * y
 			+ m_Mixte.y * z
@@ -229,14 +235,6 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 
 		Result.AjusterNormale(CVecteur3::Normaliser(CVecteur3(xn, yn, zn)));
 	}
-	// TODO: À COMPLÉTER ...
-
-	// La référence pour l'algorithme d'intersection des quadriques est : 
-	// Eric Haines, Paul Heckbert "An Introduction to Rayon Tracing",
-	// Academic Press, Edited by Andrw S. Glassner, pp.68-73 & 288-293
-
-	// S'il y a collision, ajuster les variables suivantes de la structure intersection :
-	// Normale, Surface intersectée et la distance
 
 	return Result;
 }
