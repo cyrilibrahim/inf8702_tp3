@@ -128,6 +128,24 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
 
+	CVecteur3 e1 = m_Pts[1]-m_Pts[0];
+	CVecteur3 e2 = m_Pts[2]-m_Pts[0];
+	CVecteur3 T = Rayon.ObtenirOrigine() - m_Pts[0];
+
+	CVecteur3 P = CVecteur3::ProdVect(Rayon.ObtenirDirection(),e2);
+	CVecteur3 Q = CVecteur3::ProdVect(T,e1);
+
+	CVecteur3 tuv = (1/CVecteur3::ProdScal(P,e1))*CVecteur3(
+			CVecteur3::ProdScal(Q,e2),
+			CVecteur3::ProdScal(P,T),
+			CVecteur3::ProdScal(Q,Rayon.ObtenirDirection()));
+
+	if (tuv.y>=0 && tuv.z>=0 && tuv.y+tuv.z<=1) {
+		Result.AjusterSurface(this);
+		Result.AjusterDistance(CVecteur3::Norme(Rayon.ObtenirDirection()*tuv.x));
+		Result.AjusterNormale(m_Normale);
+	}
+
 	// À COMPLÉTER ... 
 
 	// Voici deux références pour acomplir le développement :
