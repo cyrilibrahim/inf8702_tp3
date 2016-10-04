@@ -566,9 +566,14 @@ namespace Math3D
 	///////////////////////////////////////////////////////////////////////////////
 	inline const CVecteur3 CVecteur3::Refract( const CVecteur3& Vecteur, const CVecteur3& Normal, const REAL IndiceRefractionRatio )
 	{
-		//2e loi de snell-descartes
-		CVecteur3 Z = IndiceRefractionRatio * (Vecteur - CVecteur3::ProdScal(Vecteur, Normal)*Normal);
-		return Z - sqrt(1 - CVecteur3::Norme(Z))*Normal;
+		CVecteur3 Z = IndiceRefractionRatio * (Vecteur - ProdScal(Vecteur, Normal)*Normal);
+		REAL Znorm = Norme(Z);
+		if (Znorm <= 1)
+			//2e loi de snell-descartes
+			return Z - sqrt(1 - Znorm)*Normal;
+		else
+			//Reflection totale
+			return Reflect(Vecteur, Normal);
 	}
 }
 
