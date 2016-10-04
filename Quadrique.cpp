@@ -210,7 +210,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 	}
 
 	// En cas d'intersection
-	if (t != 0) {
+	if (t > 0) {
 		Result.AjusterSurface(this);
 		Result.AjusterDistance(CVecteur3::Norme(dir*t));
 
