@@ -827,9 +827,17 @@ const CCouleur CScene::ObtenirFiltreDeSurface( CRayon& LumiereRayon ) const
 
 	// Tester le rayon de lumière avec chaque surface de la scène
 	// pour vérifier s'il y a intersection
-
-	// S'il y a une intersection appliquer la translucidité de la surface
-	// intersectée sur le filtre
+	CIntersection intersect;
+	for (SurfaceIterator aSurface = m_Surfaces.begin(); aSurface != m_Surfaces.end(); aSurface++)
+	{
+		intersect = (*aSurface)->Intersection(LumiereRayon);
+		// S'il y a une intersection appliquer la translucidité de la surface
+		// intersectée sur le filtre
+		if (intersect.ObtenirDistance() > EPSILON) {
+			ISurface *surf = intersect.ObtenirSurface();
+			Filter *= surf->ObtenirCouleur() * surf->ObtenirCoeffRefraction();
+		}
+	}
 
 	return Filter;
 }
