@@ -744,7 +744,7 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 			CVecteur3 reflected = CVecteur3::Normaliser(CVecteur3::Reflect(LumiereRayon.ObtenirDirection(),Intersection.ObtenirNormale()));
 			REAL PhongFactor = (*uneLumiere)->GetIntensity() * Intersection.ObtenirSurface()->ObtenirCoeffSpeculaire() *
 				pow(CVecteur3::ProdScal(reflected,Rayon.ObtenirDirection()), Intersection.ObtenirSurface()->ObtenirCoeffBrillance());
-			Result += Intersection.ObtenirSurface()->ObtenirCouleur() * PhongFactor * LumiereCouleur;
+			Result +=  PhongFactor * LumiereCouleur;
 		}
 	}
 
