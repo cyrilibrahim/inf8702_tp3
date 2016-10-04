@@ -628,14 +628,14 @@ void CScene::LancerRayons( void )
 
 	//Arête de la grille virtuelle qui remplit le champs de la caméra à z=-1 (distance=1)
 	//TODO vérifier l'angle et les unités
-	REAL taille_grille = 2*tan(m_Camera.Angle/2.0);
+	REAL taille_grille = 2 * tan(m_Camera.Angle * RENDRE_REEL(PI) / RENDRE_REEL(360));
 
 	//Boucle sur tous les pixels de la grille
 	for (int y = 0; y < m_ResHauteur; y++) {
 	    for (int x = 0; x < m_ResLargeur; x++) {
 		//Coordonnées des pixels dans le référentiel de la caméra
-		REAL Py = (y / (REAL)m_ResHauteur - 0.5) * taille_grille;
-		REAL Px = (x / (REAL)m_ResLargeur - 0.5) * taille_grille;
+		REAL Py = 2 * (y / (REAL)m_ResHauteur - RENDRE_REEL(0.5)) * taille_grille;
+		REAL Px = 2 * (x / (REAL)m_ResLargeur - RENDRE_REEL(0.5)) * taille_grille;
 
 		CRayon rayon;
 		//Le rayon est lancé depuis la caméra...
