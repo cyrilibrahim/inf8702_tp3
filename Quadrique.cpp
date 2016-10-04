@@ -160,60 +160,84 @@ void CQuadrique::Pretraitement( void )
 CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 {
 	CIntersection Result;
+	CVecteur3 dir = Rayon.ObtenirDirection();
+	CVecteur3 orig = Rayon.ObtenirOrigine();
 
-	CVecteur3 directionRayon = Rayon.ObtenirDirection;
-	CVecteur3 originRayon = Rayon.ObtenirOrigine;
+	//On calcule les coefficients de l'équation quadratique Aq.t²+Bq.t+Cq=0 obtenue en introduisant l'expression paramétrique de la droite dans l'équation de la quadrique
+	REAL Aq = m_Quadratique.x * dir.x * dir.x
+		+ m_Mixte.z * dir.x * dir.y
+		+ m_Mixte.y * dir.x * dir.z
+		+ m_Quadratique.y * dir.y * dir.y
+		+ m_Mixte.x * dir.y * dir.z
+		+ m_Quadratique.z * dir.z * dir.z;
 
-	// TODO: À COMPLÉTER ...
-	REAL Aq = pow(directionRayon.x, 2) * m_Quadratique.x
-		    + m_Mixte.z * directionRayon.x * directionRayon.y 
-			+ m_Mixte.y * directionRayon.x * directionRayon.z
-			+ pow(directionRayon.y, 2) * m_Quadratique.y
-			+ m_Mixte.x * directionRayon.y * directionRayon.z
-			+ pow(directionRayon.z, 2) * m_Quadratique.z;
+	REAL Bq = 2 * m_Quadratique.x * dir.x * orig.x
+		+ m_Mixte.z*(orig.x*dir.y + orig.y*dir.x)
+		+ m_Mixte.y*(orig.x*dir.z + orig.z*dir.x)
+		+ m_Lineaire.x*dir.x
+		+ 2 * m_Quadratique.y*dir.y*orig.y
+		+ m_Mixte.x*(dir.z*orig.y + dir.y*orig.z)
+		+ m_Lineaire.y*dir.y
+		+ 2 * m_Quadratique.z*dir.z*orig.z
+		+ m_Lineaire.z*dir.z;
 
+	REAL Cq = m_Quadratique.x*orig.x*orig.x
+		+ m_Mixte.z*orig.x*orig.y
+		+ m_Mixte.y*orig.x*orig.z
+		+ m_Lineaire.x*orig.x
+		+ m_Quadratique.y*orig.y*orig.y
+		+ m_Mixte.x*orig.y*orig.z
+		+ m_Lineaire.y*orig.y
+		+ m_Quadratique.z*orig.z*orig.z
+		+ m_Lineaire.z*orig.z
+		+ m_Cst;
 
-	REAL Bq = 2 * (originRayon.x * directionRayon.x * m_Quadratique.x
-		+ m_Mixte.z * (originRayon.x * directionRayon.y + directionRayon.x * originRayon.y)
-		+ m_Mixte.y * (originRayon.x * directionRayon.z + directionRayon.x * originRayon.z)
-		+ m_Lineaire.x * directionRayon.x
-		+ m_Quadratique.y * originRayon.y * directionRayon.y,
-		+ m_Mixte.x * ( originRayon.y * directionRayon.z + directionRayon.y * originRayon.z)
-		+ m_Lineaire.y * directionRayon.y
-		+ m_Quadratique.z * originRayon.z * directionRayon.z
-		+ m_Lineaire.z * directionRayon.z
-		);
-
-	REAL Cq = m_Quadratique.x * pow(originRayon.x, 2)
-			+ m_Mixte.z * originRayon.x * originRayon.y
-			+ m_Mixte.y * originRayon.x * originRayon.z
-			+ m_Lineaire.x * originRayon.x
-			+ m_Quadratique.y * pow(originRayon.y,2)
-			+ m_Mixte.x * originRayon.y * originRayon.z
-			+ m_Lineaire.y * originRayon.y
-			+ m_Quadratique.z * pow(originRayon.z,2)
-			+ m_Lineaire.z * originRayon.z
-			+ m_Cst;
-
+	// valeur par défaut: t=0 correspond à l'origine de la droite, pas d'intersection possible
 	REAL t = 0;
-
-	REAL determinant = pow(Bq, 2) - 4 * Aq * Cq;
-
-	if (Aq != 0) {
+	if (Aq == 0 && Bq != 0)
+		//Une solution unique
 		t = -Cq / Bq;
-		if (determinant < 0) {
-			return Result;
-		}
-		else {
-			REAL t0 = (-Bq - sqrt(determinant)) / 2 * Aq;
-			REAL t1 = (-Bq + sqrt(determinant)) / 2 * Aq;
-
-			REAL distanceT0 = CVecteur3::Norme(t0 * directionRayon);
-			REAL distanceT1 = CVecteur3::Norme(t1 * directionRayon);
-
-			t = (t0 < t1) ? t0 : t1;
+	else {
+		//Déterminant
+		REAL delta = Bq*Bq - 4 * Aq*Cq;
+		if (delta >= 0) {
+			//Deux solutions (éventuellement égales)
+			REAL t0 = (-Bq - sqrt(delta)) / (2 * Aq);
+			REAL t1 = (-Bq + sqrt(delta)) / (2 * Aq);
+			//On choisit le point le plus proche de la caméra
+			t = t0 < t1 ? t0 : t1;
 		}
 	}
+
+	// En cas d'intersection
+	if (t != 0) {
+		Result.AjusterSurface(this);
+		Result.AjusterDistance(CVecteur3::Norme(dir*t));
+
+		//Coordonnées du point d'intersection
+		REAL x = orig.x + dir.x * t;
+		REAL y = orig.y + dir.y * t;
+		REAL z = orig.z + dir.z * t;
+
+		//Normale à la quadrique au point d'intersection
+		REAL xn = 2 * m_Quadratique.x*x
+			+ m_Mixte.z * y
+			+ m_Mixte.y * z
+			+ m_Lineaire.x;
+		REAL yn = m_Mixte.z * x
+			+ 2 * m_Quadratique.y*y
+			+ m_Mixte.x*z
+			+ m_Lineaire.y;
+		REAL zn = m_Mixte.y *x
+			+ m_Mixte.x*y
+			+ 2 * m_Quadratique.z*z
+			+ m_Lineaire.z;
+
+		Result.AjusterNormale(CVecteur3::Normaliser(CVecteur3(xn, yn, zn)));
+	}
+
+	return Result;
+}
 
 	// La référence pour l'algorithme d'intersection des quadriques est : 
 	// Eric Haines, Paul Heckbert "An Introduction to Rayon Tracing",
@@ -222,8 +246,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 	// S'il y a collision, ajuster les variables suivantes de la structure intersection :
 	// Normale, Surface intersectée et la distance
 
-	return Result;
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///  public virtual constant  Copier \n

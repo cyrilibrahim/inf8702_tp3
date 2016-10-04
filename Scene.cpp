@@ -626,72 +626,33 @@ void CScene::LancerRayons(void)
 {
 	Initialiser();
 
-	//POUR chaque position Py de pixel de la grille virtuelle
-	for (int y = 0; y < m_ResHauteur; y++)
-	{
+	//Arête de la grille virtuelle qui remplit le champs de la caméra à z=-1 (distance=1)
+	//TODO vérifier l'angle et les unités
+	REAL taille_grille = 2 * tan(m_Camera.Angle * RENDRE_REEL(PI) / RENDRE_REEL(360));
 
-		//      POUR chaque position Px de pixel de la grille virtuelle
-		for (int x = 0; x < m_ResLargeur; x++)
-		{
-			//Ajuster l’origine du rayon au centre de la caméra
-			REAL pixelYCentre = y - (m_ResHauteur / 2);
-			REAL pixelXCentre = x - (m_ResLargeur / 2);
+	//Boucle sur tous les pixels de la grille
+	for (int y = 0; y < m_ResHauteur; y++) {
+		for (int x = 0; x < m_ResLargeur; x++) {
+			//Coordonnées des pixels dans le référentiel de la caméra
+			REAL Py = 2 * (y / (REAL)m_ResHauteur - RENDRE_REEL(0.5)) * taille_grille;
+			REAL Px = 2 * (x / (REAL)m_ResLargeur - RENDRE_REEL(0.5)) * taille_grille;
 
-			//Choix arbirtaire d'une distance de la grille par rapport a la camera
-			REAL distanceCamera = 1.0f;
-
-			//Calcul de la longueur d'un pixel dans notre grille virtuelle 
-
-			REAL demiAngleCamera = m_Camera.Angle / 2;
-			REAL demiHauteur = tan(demiAngleCamera) * distanceCamera;
-			REAL pasPixelVirtuelHauteur = (demiHauteur * 2) / m_ResHauteur;
-			REAL pasPixelVirtuelLargeur = (demiHauteur * 2) / m_ResLargeur;
-
-
-			//Calcul des coordonnées sur la grille virtuelle
-			REAL Py_grille = pixelYCentre * pasPixelVirtuelHauteur;
-			REAL Px_grille = pixelXCentre * pasPixelVirtuelLargeur;
-
-			CVecteur3 pointGrille = CVecteur3(Px_grille, Py_grille, -distanceCamera);
-
-			//          Calculer la direction du rayon vers la coordonnée réelle
-			//          du pixel ( Px,Py )
-			
-			CVecteur3 directionRayon = pointGrille;
-
-			//          Ajuster l'orientation du rayon ( utiliser la matrice
-			//          Orientation de la camera qui est déjà calculé pour vous ) et le normaliser
-			directionRayon = directionRayon * m_Camera.Orientation;
-			directionRayon = CVecteur3::Normaliser(directionRayon);
-
-
-			//Creation et parametrage du rayon 
-			CRayon rayon = CRayon();
-
+			CRayon rayon;
+			//Le rayon est lancé depuis la caméra...
 			rayon.AjusterOrigine(m_Camera.Position);
-			rayon.AjusterDirection(directionRayon);
-		
-
-			//
-			//          Initialiser les autres caractéristiques du rayon à :
-			//              - Energie            = 1
-			//              - NbRebonds          = 0
-			//              - IndiceDeRefraction = 1
-			//
-
+			//en direction de chaque pixel
+			CVecteur3 dir_cs(Px, Py, -1.0);
+			rayon.AjusterDirection(CVecteur3::Normaliser(dir_cs*m_Camera.Orientation));
 			rayon.AjusterEnergie(1);
 			rayon.AjusterNbRebonds(0);
 			rayon.AjusterIndiceRefraction(1);
 
-			//          Lancer le rayon pour obtenir la couleur du pixel avec la fonction
-			//          CScene::ObtenirCouleur()
-			CCouleur couleurObtenue = CScene::ObtenirCouleur(rayon);
-			//          Enregistrer les composantes R, G et B de la couleur du pixel dans la
-			//          structure linéaire m_PixelInfo de taille ResolutionX * ResolutionY * 3
-
-			m_InfoPixel[3 * (y * m_ResLargeur + x)] = couleurObtenue.r;
-			m_InfoPixel[3 * (y * m_ResLargeur + x) + 1] = couleurObtenue.g;
-			m_InfoPixel[3 * (y * m_ResLargeur + x) + 2] = couleurObtenue.b;
+			CCouleur couleur = ObtenirCouleur(rayon);
+			//m_InfoPixel contient 3 valeurs (r,g,b) pour chaque pixel
+			//chaque ligne correspond à un décalage de m_ResLargeur
+			m_InfoPixel[3 * (y*m_ResLargeur + x)] = couleur.r;
+			m_InfoPixel[3 * (y*m_ResLargeur + x) + 1] = couleur.g;
+			m_InfoPixel[3 * (y*m_ResLargeur + x) + 2] = couleur.b;
 		}
 	}
 
