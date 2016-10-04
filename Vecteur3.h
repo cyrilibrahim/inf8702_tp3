@@ -566,11 +566,9 @@ namespace Math3D
 	///////////////////////////////////////////////////////////////////////////////
 	inline const CVecteur3 CVecteur3::Refract( const CVecteur3& Vecteur, const CVecteur3& Normal, const REAL IndiceRefractionRatio )
 	{
-		CVecteur3 Result;
-
-		// À COMPLÉTER ...
-
-		return Result;
+		//2e loi de snell-descartes
+		CVecteur3 Z = IndiceRefractionRatio * (Vecteur - CVecteur3::ProdScal(Vecteur, Normal)*Normal);
+		return Z - sqrt(1 - CVecteur3::Norme(Z))*Normal;
 	}
 }
 
