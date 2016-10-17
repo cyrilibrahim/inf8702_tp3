@@ -352,6 +352,7 @@ void CScene::TraiterFichierDeScene( const char* Fichier )
 						{
 							sscanf( Buffer.c_str(), "%s %f %f %f", Line, &Val0, &Val1, &Val2 );
 							AjusterPositionCamera( CVecteur3( Val0, Val1, Val2 ) );
+							AjusterPositionCamera(CVecteur3(Val0, Val1, Val2));
 						}
 						else if( STRING_CHECKFIND( Buffer, "eye:" ) )
 						{
@@ -628,14 +629,21 @@ void CScene::LancerRayons(void)
 
 	//Arête de la grille virtuelle qui remplit le champs de la caméra à z=-1 (distance=1)
 	//TODO vérifier l'angle et les unités
-	REAL taille_grille = 2 * tan(m_Camera.Angle * RENDRE_REEL(PI) / RENDRE_REEL(360));
+	REAL hauteur_grille = 2 * tan(m_Camera.Angle * RENDRE_REEL(PI) / RENDRE_REEL(360));
+	REAL pasGrille = hauteur_grille / m_ResHauteur;
 
 	//Boucle sur tous les pixels de la grille
 	for (int y = 0; y < m_ResHauteur; y++) {
 		for (int x = 0; x < m_ResLargeur; x++) {
-			//Coordonnées des pixels dans le référentiel de la caméra
-			REAL Py = 2 * (y / (REAL)m_ResHauteur - RENDRE_REEL(0.5)) * taille_grille;
-			REAL Px = 2 * (x / (REAL)m_ResLargeur - RENDRE_REEL(0.5)) * taille_grille;
+
+			//On ajuste l'echelle pour que ca aille entre -1 et 1 
+			REAL Py = -((REAL)m_ResHauteur / 2) * pasGrille;
+			REAL Px = -((REAL)m_ResLargeur / 2) * pasGrille;
+			
+			
+			//On ajuste les coordonnées dans le referentiel de la camera 
+			Py = Py +  y * pasGrille;
+			Px = Px +  x * pasGrille;
 
 			CRayon rayon;
 			//Le rayon est lancé depuis la caméra...
@@ -741,6 +749,25 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 
 			// À COMPLÉTER
 			// AJOUTER LA CONTRIBUTION SPÉCULAIRE DE PHONG...
+			CVecteur3 normalNormalise = CVecteur3::Normaliser(Intersection.ObtenirNormale());
+			CVecteur3 dirLumiereNormalise = CVecteur3::Normaliser(LumiereRayon.ObtenirDirection());
+
+			//Calcul du vecteur reflété
+			CVecteur3 vecR = 2 * Intersection.ObtenirNormale() * (CVecteur3::ProdScal(dirLumiereNormalise, normalNormalise)) - LumiereRayon.ObtenirDirection();
+			//Calcul du vecteur du point vers l'oeil (camera ici)
+			CVecteur3 EyeVec = CVecteur3::Normaliser(m_Camera.Position - IntersectionPoint);
+			
+			//Précalcul du produit scalaire 
+			REAL RdotV = Max<REAL>(CVecteur3::ProdScal(vecR, EyeVec),0);
+
+
+			//Calcul de la contribution spéculaire de Phong
+			REAL SpecularPhong = (*uneLumiere)->GetIntensity() * Intersection.ObtenirSurface()->ObtenirCoeffSpeculaire() * pow(RdotV, Intersection.ObtenirSurface()->ObtenirCoeffBrillance());
+
+
+			//Ajout de la composante spéculaire de Phong
+			Result += CCouleur(SpecularPhong) ;
+			
 		}
 	}
 
@@ -750,14 +777,14 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 	{
 		CRayon ReflectedRayon;
 		// À COMPLÉTER
-		//Ajuster la direction du rayon réfracté
-		//ReflectedRayon.AjusterDirection( ... );
+		//Ajuster la direction du rayon reflechi
+		ReflectedRayon.AjusterDirection(CVecteur3::Reflect(Rayon.ObtenirDirection(), Intersection.ObtenirNormale()));
 		ReflectedRayon.AjusterOrigine( IntersectionPoint );
 		ReflectedRayon.AjusterEnergie( ReflectedRayonEnergy );
 		ReflectedRayon.AjusterNbRebonds( Rayon.ObtenirNbRebonds() + 1 );
 		
 		//À decommenter apres ajustement de la direction!
-		//Result += ObtenirCouleur( ReflectedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffReflexion();
+		Result += ObtenirCouleur( ReflectedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffReflexion();
 	}
 
 	// Effectuer les réfractions de rayon
@@ -788,10 +815,10 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 		RefractedRayon.AjusterNbRebonds( Rayon.ObtenirNbRebonds() + 1 );
 		// À COMPLÉTER
 		//Ajuster la direction du rayon réfracté
-		// ...
+		RefractedRayon.AjusterDirection(CVecteur3::Refract(Rayon.ObtenirDirection(), SurfaceNormal, IndiceRefractionRatio));
 
 		//A decommenter apres ajustement de la direction!
-		//Result += ObtenirCouleur( RefractedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffRefraction();
+		Result += ObtenirCouleur( RefractedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffRefraction();
 	}
 
 	return Result;
@@ -823,9 +850,24 @@ const CCouleur CScene::ObtenirFiltreDeSurface( CRayon& LumiereRayon ) const
 
 	// Tester le rayon de lumière avec chaque surface de la scène
 	// pour vérifier s'il y a intersection
+	for (SurfaceIterator surface = m_Surfaces.begin(); surface != m_Surfaces.end(); surface++) {
+		
+		LumiereIntersection = (*surface)->Intersection(LumiereRayon);
+		REAL distanceIntersection = LumiereIntersection.ObtenirDistance();
+		 
+		// S'il y a une intersection appliquer la translucidité de la surface
+		// intersectée sur le filtre
 
-	// S'il y a une intersection appliquer la translucidité de la surface
-	// intersectée sur le filtre
+		//Le Rayon intersection la surface 
+		if (distanceIntersection > EPSILON ) {
+
+			//Pour ne pas appliquer le filtre sur la surface même
+			if(Distance > distanceIntersection)
+				Filter *=  (*surface)->ObtenirCoeffRefraction() * (*surface)->ObtenirCouleur() ;
+
+		}
+
+	}
 
 	return Filter;
 }

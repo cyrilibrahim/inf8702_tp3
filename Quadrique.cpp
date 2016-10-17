@@ -12,12 +12,12 @@ using namespace Scene;
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CQuadrique::CQuadrique( void )
-    : ISurface     (                  )
-    , m_Quadratique( CVecteur3::ZERO  )
-    , m_Lineaire   ( CVecteur3::ZERO  )
-    , m_Mixte      ( CVecteur3::ZERO  )
-    , m_Cst        ( RENDRE_REEL( 0 ) )
+CQuadrique::CQuadrique(void)
+	: ISurface()
+	, m_Quadratique(CVecteur3::ZERO)
+	, m_Lineaire(CVecteur3::ZERO)
+	, m_Mixte(CVecteur3::ZERO)
+	, m_Cst(RENDRE_REEL(0))
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,12 +32,12 @@ CQuadrique::CQuadrique( void )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CQuadrique::CQuadrique( const CQuadrique& Quadric )
-    : ISurface     ( Quadric               )
-    , m_Quadratique( Quadric.m_Quadratique )
-    , m_Lineaire   ( Quadric.m_Lineaire    )
-    , m_Mixte      ( Quadric.m_Mixte       )
-    , m_Cst        ( Quadric.m_Cst         )
+CQuadrique::CQuadrique(const CQuadrique& Quadric)
+	: ISurface(Quadric)
+	, m_Quadratique(Quadric.m_Quadratique)
+	, m_Lineaire(Quadric.m_Lineaire)
+	, m_Mixte(Quadric.m_Mixte)
+	, m_Cst(Quadric.m_Cst)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ CQuadrique::CQuadrique( const CQuadrique& Quadric )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CQuadrique::~CQuadrique( void )
+CQuadrique::~CQuadrique(void)
 {
 }
 
@@ -66,14 +66,14 @@ CQuadrique::~CQuadrique( void )
 ///  @date   14/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CQuadrique& CQuadrique::operator = ( const CQuadrique& Quadric )
+CQuadrique& CQuadrique::operator = (const CQuadrique& Quadric)
 {
-    ISurface::operator =( Quadric );
-    m_Quadratique = Quadric.m_Quadratique;
-    m_Lineaire    = Quadric.m_Lineaire;
-    m_Mixte       = Quadric.m_Mixte;
-    m_Cst         = Quadric.m_Cst;
-    return ( *this );
+	ISurface::operator =(Quadric);
+	m_Quadratique = Quadric.m_Quadratique;
+	m_Lineaire = Quadric.m_Lineaire;
+	m_Mixte = Quadric.m_Mixte;
+	m_Cst = Quadric.m_Cst;
+	return (*this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,13 +88,13 @@ CQuadrique& CQuadrique::operator = ( const CQuadrique& Quadric )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-ostream& CQuadrique::AfficherInfoDebug( ostream& Out ) const
+ostream& CQuadrique::AfficherInfoDebug(ostream& Out) const
 {
-    Out << "[DEBUG]: Quadric.Quadratique       = " << m_Quadratique << endl;
-    Out << "[DEBUG]: Quadric.Lineaire          = " << m_Lineaire    << endl;
-    Out << "[DEBUG]: Quadric.Mixte             = " << m_Mixte       << endl;
-    Out << "[DEBUG]: Quadric.Constante         = " << m_Cst;
-    return Out;
+	Out << "[DEBUG]: Quadric.Quadratique       = " << m_Quadratique << endl;
+	Out << "[DEBUG]: Quadric.Lineaire          = " << m_Lineaire << endl;
+	Out << "[DEBUG]: Quadric.Mixte             = " << m_Mixte << endl;
+	Out << "[DEBUG]: Quadric.Constante         = " << m_Cst;
+	return Out;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,42 +107,42 @@ ostream& CQuadrique::AfficherInfoDebug( ostream& Out ) const
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-void CQuadrique::Pretraitement( void )
+void CQuadrique::Pretraitement(void)
 {
-   // Algorithme tiré de ... 
-   // R. Goldman, "Two Approach to a Computer Model for Quadric Surfaces",
-   // IEEE CG&A, Sept 1983, pp.21
-   
-    REAL A = m_Quadratique.x;
+	// Algorithme tiré de ... 
+	// R. Goldman, "Two Approach to a Computer Model for Quadric Surfaces",
+	// IEEE CG&A, Sept 1983, pp.21
+
+	REAL A = m_Quadratique.x;
 	REAL B = m_Quadratique.y;
-    REAL C = m_Quadratique.z;
-    REAL D = m_Mixte.z    * RENDRE_REEL( 0.5 );
-	REAL E = m_Mixte.x    * RENDRE_REEL( 0.5 );
-	REAL F = m_Mixte.y    * RENDRE_REEL( 0.5 );
-	REAL G = m_Lineaire.x * RENDRE_REEL( 0.5 );
-	REAL H = m_Lineaire.y * RENDRE_REEL( 0.5 );
-	REAL J = m_Lineaire.z * RENDRE_REEL( 0.5 );
+	REAL C = m_Quadratique.z;
+	REAL D = m_Mixte.z    * RENDRE_REEL(0.5);
+	REAL E = m_Mixte.x    * RENDRE_REEL(0.5);
+	REAL F = m_Mixte.y    * RENDRE_REEL(0.5);
+	REAL G = m_Lineaire.x * RENDRE_REEL(0.5);
+	REAL H = m_Lineaire.y * RENDRE_REEL(0.5);
+	REAL J = m_Lineaire.z * RENDRE_REEL(0.5);
 	REAL K = m_Cst;
 
-	CMatrice4 Q( A, D, F, G,
-			     D, B, E, H,
-			     F, E, C, J,
-			     G, H, J, K );
+	CMatrice4 Q(A, D, F, G,
+		D, B, E, H,
+		F, E, C, J,
+		G, H, J, K);
 
-    CMatrice4 Inverse = m_Transformation.Inverse();
+	CMatrice4 Inverse = m_Transformation.Inverse();
 
-    Q = Inverse * Q * Inverse.Transpose();
+	Q = Inverse * Q * Inverse.Transpose();
 
-    m_Quadratique.x = Q[ 0 ][ 0 ];
-    m_Quadratique.y = Q[ 1 ][ 1 ];
-	m_Quadratique.z = Q[ 2 ][ 2 ];
-	m_Cst           = Q[ 3 ][ 3 ];
-	m_Mixte.x       = Q[ 1 ][ 2 ] * RENDRE_REEL( 2.0 );
-	m_Mixte.y       = Q[ 0 ][ 2 ] * RENDRE_REEL( 2.0 );
-	m_Mixte.z       = Q[ 0 ][ 1 ] * RENDRE_REEL( 2.0 );
-	m_Lineaire.x    = Q[ 0 ][ 3 ] * RENDRE_REEL( 2.0 );
-	m_Lineaire.y    = Q[ 1 ][ 3 ] * RENDRE_REEL( 2.0 );
-    m_Lineaire.z    = Q[ 2 ][ 3 ] * RENDRE_REEL( 2.0 );
+	m_Quadratique.x = Q[0][0];
+	m_Quadratique.y = Q[1][1];
+	m_Quadratique.z = Q[2][2];
+	m_Cst = Q[3][3];
+	m_Mixte.x = Q[1][2] * RENDRE_REEL(2.0);
+	m_Mixte.y = Q[0][2] * RENDRE_REEL(2.0);
+	m_Mixte.z = Q[0][1] * RENDRE_REEL(2.0);
+	m_Lineaire.x = Q[0][3] * RENDRE_REEL(2.0);
+	m_Lineaire.y = Q[1][3] * RENDRE_REEL(2.0);
+	m_Lineaire.z = Q[2][3] * RENDRE_REEL(2.0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ void CQuadrique::Pretraitement( void )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CIntersection CQuadrique::Intersection( const CRayon& Rayon )
+CIntersection CQuadrique::Intersection(const CRayon& Rayon)
 {
 	CIntersection Result;
 	CVecteur3 dir = Rayon.ObtenirDirection();
@@ -210,7 +210,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 	}
 
 	// En cas d'intersection
-	if (t != 0) {
+	if (t > 0) {
 		Result.AjusterSurface(this);
 		Result.AjusterDistance(CVecteur3::Norme(dir*t));
 
@@ -239,15 +239,6 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 	return Result;
 }
 
-	// La référence pour l'algorithme d'intersection des quadriques est : 
-	// Eric Haines, Paul Heckbert "An Introduction to Rayon Tracing",
-	// Academic Press, Edited by Andrw S. Glassner, pp.68-73 & 288-293
-
-	// S'il y a collision, ajuster les variables suivantes de la structure intersection :
-	// Normale, Surface intersectée et la distance
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 ///  public virtual constant  Copier \n
 ///  Description : Alloue une copie de la quadrique courante
@@ -258,7 +249,7 @@ CIntersection CQuadrique::Intersection( const CRayon& Rayon )
 ///  @date   13/08/2008
 ///
 ///////////////////////////////////////////////////////////////////////////////
-CQuadrique* CQuadrique::Copier( void ) const
+CQuadrique* CQuadrique::Copier(void) const
 {
-    return new CQuadrique( *this );
+	return new CQuadrique(*this);
 }

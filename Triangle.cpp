@@ -136,6 +136,61 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 
 	// Notez que la normale du triangle est déjà calculée lors du prétraitement
 	// il suffit que de la passer à la structure d'intersection.
+	
+	CVecteur3 dirRayon = Rayon.ObtenirDirection();
+	CVecteur3 origineRayon = Rayon.ObtenirOrigine();
+
+	//E1 dans l'équation (edge 1)
+	CVecteur3 Edge1 = m_Pts[1] - m_Pts[0];
+	//E2 dans l'équation (edge 2)
+	CVecteur3 Edge2 = m_Pts[2] - m_Pts[0];
+
+	//Cacule de la variable P (pour le calcul du determinant) de la formule
+	CVecteur3 P = CVecteur3::ProdVect(dirRayon, Edge2);
+
+	//Calcul du determinant 
+	REAL determinant = CVecteur3::ProdScal(P, Edge1);
+
+	//Si le determinant est plus petit que 0 alors il n'y a pas d'intersection
+	//On fait la comparaison à EPSILON au lieu de 0 pour des questions de precisions
+	//même si un return dans le code n'est pas très conseillé nous le faisons ici pour des questions
+	//de performance de l'algorithme.
+	if (determinant > -EPSILON && determinant < EPSILON) {
+		return Result;
+	}
+
+	//Calcul de la variable T  (distance du sommet 0 a l'origine du rayon)
+	CVecteur3 T = origineRayon - m_Pts[0];
+
+	//Calcul de Q (variable intermediaire de calcul)
+	CVecteur3 Q = CVecteur3::ProdVect(T, Edge1);
+
+	//On calcul les valeur de u et v (coordonnées barycentrique de l'intersection sur le triangle)
+	
+	REAL u = (1 / determinant) * CVecteur3::ProdScal(P, T);
+	
+	//Si u est inferieur à 0 ou superieur à 1 cela signifie que l'intersection n'est pas dans le triangle
+	if (u < 0 || u > 1) {
+		return Result;
+	}
+	
+	REAL v = (1 / determinant) * CVecteur3::ProdScal(Q, dirRayon);
+
+	//Si v est inferieur à 0 ou v + u superieur à 1 cela signifie que l'intersection n'est pas dans le triangle
+	if (v < 0 || (v + u) > 1) {
+		return Result;
+	}
+
+	//Calcul du t à l'intersection de la formule du rayon (R(t) = Ro + Rd*t) 
+	REAL t = (1 / determinant) * CVecteur3::ProdScal(Q, Edge2);
+
+	//Calcul de la distance entre l'origine du rayon et le point d'interesction
+	REAL distance = CVecteur3::Norme( t * dirRayon );
+
+	//On ajuste le resultat d'intersection
+	Result.AjusterSurface(this);
+	Result.AjusterDistance(distance);
+	Result.AjusterNormale(m_Normale);
 
     return Result;
 }

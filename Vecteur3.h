@@ -547,8 +547,13 @@ namespace Math3D
 	///////////////////////////////////////////////////////////////////////////////
 	inline const CVecteur3 CVecteur3::Reflect( const CVecteur3& Vecteur, const CVecteur3& Normal )
 	{
-		// À COMPLÉTER ...
-		return Vecteur;
+
+		REAL VdotN = CVecteur3::ProdScal(Vecteur, Normal);
+
+		//Application de la première loi de Snell-Descartes
+		CVecteur3 vecReflechi = Vecteur - (2 * (VdotN) * Normal);
+		
+		return vecReflechi;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -569,6 +574,22 @@ namespace Math3D
 		CVecteur3 Result;
 
 		// À COMPLÉTER ...
+
+		//Variable Z intermediaire pour calculer la refraction
+		CVecteur3 Z = IndiceRefractionRatio * (Vecteur - (CVecteur3::ProdScal(Vecteur, Normal) * Normal));
+		REAL ZnormCarre = Norme(Z) * Norme(Z);
+
+
+
+		if (ZnormCarre > 1) {
+			//Refraction total
+			Result = Reflect(Vecteur, Normal);
+		}
+		else {
+			//Calcul de la refraction
+			Result = Z - sqrt(1 - ZnormCarre) * Normal;
+		}
+
 
 		return Result;
 	}
