@@ -776,7 +776,7 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 		ReflectedRayon.AjusterNbRebonds( Rayon.ObtenirNbRebonds() + 1 );
 		
 		//À decommenter apres ajustement de la direction!
-		//Result += ObtenirCouleur( ReflectedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffReflexion();
+		Result += ObtenirCouleur( ReflectedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffReflexion();
 	}
 
 	// Effectuer les réfractions de rayon
