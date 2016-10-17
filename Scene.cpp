@@ -745,11 +745,10 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 
 			// À COMPLÉTER
 			// AJOUTER LA CONTRIBUTION SPÉCULAIRE DE PHONG...
-			CVecteur3 normaleI = CVecteur3::Normaliser(Intersection.ObtenirNormale());
 			CVecteur3 dirLumiereI = -CVecteur3::Normaliser(LumiereRayon.ObtenirDirection());
 
 			//Calcul du vecteur reflété
-			CVecteur3 vecR = CVecteur3::Reflect(dirLumiereI, normaleI);
+			CVecteur3 vecR = CVecteur3::Reflect(dirLumiereI, Intersection.ObtenirNormale());
 			//Direction de la source du rayon (camera pour rayon primaire, intersection pour rayon reflechi)
 			CVecteur3 EyeVec = - CVecteur3::Normaliser(Rayon.ObtenirDirection());
 			
