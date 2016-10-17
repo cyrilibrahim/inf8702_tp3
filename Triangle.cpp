@@ -151,13 +151,10 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 	//Calcul du determinant 
 	REAL determinant = CVecteur3::ProdScal(P, Edge1);
 
-	//Si le determinant est plus petit que 0 alors il n'y a pas d'intersection
-	//On fait la comparaison à EPSILON au lieu de 0 pour des questions de precisions
-	//même si un return dans le code n'est pas très conseillé nous le faisons ici pour des questions
-	//de performance de l'algorithme.
-	if (determinant > -EPSILON && determinant < EPSILON) {
+	//Si le determinant est nul alors il n'y a pas d'intersection
+	//On fait la comparaison à EPSILON au lieu de 0 pour des questions de precision
+	if (determinant > -EPSILON && determinant < EPSILON)
 		return Result;
-	}
 
 	//Calcul de la variable T  (distance du sommet 0 a l'origine du rayon)
 	CVecteur3 T = origineRayon - m_Pts[0];
@@ -166,20 +163,17 @@ CIntersection CTriangle::Intersection( const CRayon& Rayon )
 	CVecteur3 Q = CVecteur3::ProdVect(T, Edge1);
 
 	//On calcul les valeur de u et v (coordonnées barycentrique de l'intersection sur le triangle)
-	
 	REAL u = (1 / determinant) * CVecteur3::ProdScal(P, T);
 	
 	//Si u est inferieur à 0 ou superieur à 1 cela signifie que l'intersection n'est pas dans le triangle
-	if (u < 0 || u > 1) {
+	if (u < 0 || u > 1)
 		return Result;
-	}
 	
 	REAL v = (1 / determinant) * CVecteur3::ProdScal(Q, dirRayon);
 
 	//Si v est inferieur à 0 ou v + u superieur à 1 cela signifie que l'intersection n'est pas dans le triangle
-	if (v < 0 || (v + u) > 1) {
+	if (v < 0 || (v + u) > 1)
 		return Result;
-	}
 
 	//Calcul du t à l'intersection de la formule du rayon (R(t) = Ro + Rd*t) 
 	REAL t = (1 / determinant) * CVecteur3::ProdScal(Q, Edge2);
