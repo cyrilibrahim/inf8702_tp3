@@ -574,20 +574,16 @@ namespace Math3D
 		// À COMPLÉTER ...
 
 		//Variable Z intermediaire pour calculer la refraction
-		CVecteur3 Z = IndiceRefractionRatio * (Vecteur - (CVecteur3::ProdScal(Vecteur, Normal) * Normal));
-		REAL ZnormCarre = Norme(Z) * Norme(Z);
+		CVecteur3 Z = IndiceRefractionRatio * (Vecteur - ProdScal(Vecteur, Normal) * Normal);
+		REAL Z2 = pow(Norme(Z),2);
 
-
-
-		if (ZnormCarre > 1) {
-			//Refraction total
+		if (Z2 > 1)
+			//Reflection totale
+			//theta2=90 si Z2=1, et Z2 et theta2 varient dans le meme sens: tan(theta2) = |Z|/sqrt(1-Z2)
 			Result = Reflect(Vecteur, Normal);
-		}
-		else {
+		else
 			//Calcul de la refraction
-			Result = Z - sqrt(1 - ZnormCarre) * Normal;
-		}
-
+			Result = Z - sqrt(1 - Z2) * Normal;
 
 		return Result;
 	}
