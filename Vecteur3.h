@@ -551,9 +551,7 @@ namespace Math3D
 		REAL VdotN = CVecteur3::ProdScal(Vecteur, Normal);
 
 		//Application de la première loi de Snell-Descartes
-		CVecteur3 vecReflechi = Vecteur - (2 * (VdotN) * Normal);
-		
-		return vecReflechi;
+		return  Vecteur - 2 * VdotN * Normal;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
