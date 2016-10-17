@@ -171,14 +171,14 @@ CIntersection CQuadrique::Intersection(const CRayon& Rayon)
 		+ m_Mixte.x * dir.y * dir.z
 		+ m_Quadratique.z * dir.z * dir.z;
 
-	REAL Bq = 2 * m_Quadratique.x * dir.x * orig.x
+	REAL Bq = RENDRE_REEL(2.0) * m_Quadratique.x * dir.x * orig.x
 		+ m_Mixte.z*(orig.x*dir.y + orig.y*dir.x)
 		+ m_Mixte.y*(orig.x*dir.z + orig.z*dir.x)
 		+ m_Lineaire.x*dir.x
-		+ 2 * m_Quadratique.y*dir.y*orig.y
+		+ RENDRE_REEL(2.0) * m_Quadratique.y*dir.y*orig.y
 		+ m_Mixte.x*(dir.z*orig.y + dir.y*orig.z)
 		+ m_Lineaire.y*dir.y
-		+ 2 * m_Quadratique.z*dir.z*orig.z
+		+ RENDRE_REEL(2.0) * m_Quadratique.z*dir.z*orig.z
 		+ m_Lineaire.z*dir.z;
 
 	REAL Cq = m_Quadratique.x*orig.x*orig.x
@@ -199,11 +199,11 @@ CIntersection CQuadrique::Intersection(const CRayon& Rayon)
 		t = -Cq / Bq;
 	else {
 		//Déterminant
-		REAL delta = Bq*Bq - 4 * Aq*Cq;
+		REAL delta = Bq*Bq - RENDRE_REEL(4.0) * Aq*Cq;
 		if (delta >= 0) {
 			//Deux solutions (éventuellement égales)
-			REAL t0 = (-Bq - sqrt(delta)) / (2 * Aq);
-			REAL t1 = (-Bq + sqrt(delta)) / (2 * Aq);
+			REAL t0 = (-Bq - sqrt(delta)) / (RENDRE_REEL(2.0) * Aq);
+			REAL t1 = (-Bq + sqrt(delta)) / (RENDRE_REEL(2.0) * Aq);
 			//On choisit le point le plus proche de la caméra
 			t = t0 < t1 ? t0 : t1;
 		}
@@ -220,17 +220,17 @@ CIntersection CQuadrique::Intersection(const CRayon& Rayon)
 		REAL z = orig.z + dir.z * t;
 
 		//Normale à la quadrique au point d'intersection
-		REAL xn = 2 * m_Quadratique.x*x
+		REAL xn = RENDRE_REEL(2.0) * m_Quadratique.x*x
 			+ m_Mixte.z * y
 			+ m_Mixte.y * z
 			+ m_Lineaire.x;
 		REAL yn = m_Mixte.z * x
-			+ 2 * m_Quadratique.y*y
+			+ RENDRE_REEL(2.0) * m_Quadratique.y*y
 			+ m_Mixte.x*z
 			+ m_Lineaire.y;
 		REAL zn = m_Mixte.y *x
 			+ m_Mixte.x*y
-			+ 2 * m_Quadratique.z*z
+			+ RENDRE_REEL(2.0) * m_Quadratique.z*z
 			+ m_Lineaire.z;
 
 		Result.AjusterNormale(CVecteur3::Normaliser(CVecteur3(xn, yn, zn)));
