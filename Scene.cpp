@@ -745,25 +745,22 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 
 			// À COMPLÉTER
 			// AJOUTER LA CONTRIBUTION SPÉCULAIRE DE PHONG...
-			CVecteur3 normalNormalise = CVecteur3::Normaliser(Intersection.ObtenirNormale());
-			CVecteur3 dirLumiereNormalise = CVecteur3::Normaliser(LumiereRayon.ObtenirDirection());
+			CVecteur3 normaleI = CVecteur3::Normaliser(Intersection.ObtenirNormale());
+			CVecteur3 dirLumiereI = -CVecteur3::Normaliser(LumiereRayon.ObtenirDirection());
 
 			//Calcul du vecteur reflété
-			CVecteur3 vecR = 2 * Intersection.ObtenirNormale() * (CVecteur3::ProdScal(dirLumiereNormalise, normalNormalise)) - LumiereRayon.ObtenirDirection();
-			//Calcul du vecteur du point vers l'oeil (camera ici)
-			CVecteur3 EyeVec = CVecteur3::Normaliser(m_Camera.Position - IntersectionPoint);
+			CVecteur3 vecR = CVecteur3::Reflect(dirLumiereI, normaleI);
+			//Direction de la source du rayon (camera pour rayon primaire, intersection pour rayon reflechi)
+			CVecteur3 EyeVec = - CVecteur3::Normaliser(Rayon.ObtenirDirection());
 			
 			//Précalcul du produit scalaire 
 			REAL RdotV = Max<REAL>(CVecteur3::ProdScal(vecR, EyeVec),0);
 
-
 			//Calcul de la contribution spéculaire de Phong
 			REAL SpecularPhong = (*uneLumiere)->GetIntensity() * Intersection.ObtenirSurface()->ObtenirCoeffSpeculaire() * pow(RdotV, Intersection.ObtenirSurface()->ObtenirCoeffBrillance());
 
-
 			//Ajout de la composante spéculaire de Phong
-			Result += CCouleur(SpecularPhong) ;
-			
+			Result += SpecularPhong * LumiereCouleur;
 		}
 	}
 
