@@ -777,7 +777,7 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 		ReflectedRayon.AjusterNbRebonds( Rayon.ObtenirNbRebonds() + 1 );
 		
 		//À decommenter apres ajustement de la direction!
-		Result += ObtenirCouleur( ReflectedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffReflexion();
+		//Result += ObtenirCouleur( ReflectedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffReflexion();
 	}
 
 	// Effectuer les réfractions de rayon
@@ -811,7 +811,7 @@ const CCouleur CScene::ObtenirCouleurSurIntersection( const CRayon& Rayon, const
 		RefractedRayon.AjusterDirection(CVecteur3::Refract(Rayon.ObtenirDirection(), SurfaceNormal, IndiceRefractionRatio));
 
 		//A decommenter apres ajustement de la direction!
-		Result += ObtenirCouleur( RefractedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffRefraction();
+		//Result += ObtenirCouleur( RefractedRayon ) * Intersection.ObtenirSurface()->ObtenirCoeffRefraction();
 	}
 
 	return Result;
@@ -847,19 +847,12 @@ const CCouleur CScene::ObtenirFiltreDeSurface( CRayon& LumiereRayon ) const
 		
 		LumiereIntersection = (*surface)->Intersection(LumiereRayon);
 		REAL distanceIntersection = LumiereIntersection.ObtenirDistance();
-		 
-		// S'il y a une intersection appliquer la translucidité de la surface
-		// intersectée sur le filtre
 
-		//Le Rayon intersection la surface 
-		if (distanceIntersection > EPSILON ) {
-
-			//Pour ne pas appliquer le filtre sur la surface même
-			if(Distance > distanceIntersection)
+		//Vérifier intersection
+		if (distanceIntersection > EPSILON
+			//Vérifier que la surface intersectée est entre la lumière et le point
+			&& distanceIntersection < Distance)
 				Filter *=  (*surface)->ObtenirCoeffRefraction() * (*surface)->ObtenirCouleur() ;
-
-		}
-
 	}
 
 	return Filter;
